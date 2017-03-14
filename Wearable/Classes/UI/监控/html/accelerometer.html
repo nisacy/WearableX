@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>ECharts</title>
+            <!-- 引入 echarts.js -->
+            <script src="echarts.js"></script>
+            
+            <style type="text/css">
+<!--                *{margin:0px;padding:0px;}-->
+<!--            main{ zoom:1;}-->
+html, body{ margin:0; height:100%; }
+                </style>
+            
+            <script>
+                total = document.documentElement.clientHeight;
+<!--                alert(total);-->
+<!--                document.getElementById("main").style.height=colHeight+"px";-->
+                </script>
+    </head>
+    <body>
+        <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+        <div id="main" style="width: 100%;height:100%;"></div>
+        <script type="text/javascript">
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+            
+            // 指定图表的配置项和数据
+            function randomData() {
+                return Math.random() * 200;
+            }
+        
+        var datax = ['0','1','2','3','4','5','6'];
+        var data0 = [0, 0, 0, 0, 0, 0, 0];
+        var data1 = [0, 0, 0, 0, 0, 0, 0];
+        var data2 = [0, 0, 0, 0, 0, 0, 0];
+
+        
+        var option = {
+            title: {
+                text: ''//加速度
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+<!--            legend: {-->
+<!--                data:['X轴','Y轴','Z轴']-->
+<!--            },-->
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+<!--            toolbox: {-->
+<!--                feature: {-->
+<!--                    saveAsImage: {}-->
+<!--                }-->
+<!--            },-->
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: datax,
+                axisLabel:{ //调整x轴的lable
+                    textStyle:{
+                        fontSize:25 // 让字体变大
+                    }
+                }
+                
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel:{ //调整x轴的lable
+                    textStyle:{
+                        fontSize:25 // 让字体变大
+                    }
+                }
+            },
+            series: [
+                     {
+                     name:'X轴',
+                     type:'line',
+                     stack: '总量',
+                     itemStyle : {
+                     normal : {
+                     lineStyle:{
+                     color:'#FF0000'
+                     }
+                     }
+                     },
+                     data:data0
+                     },
+                     {
+                     name:'Y轴',
+                     type:'line',
+                     stack: '总量',
+                     itemStyle : {
+                     normal : {
+                     lineStyle:{
+                     color:'#0000FF'
+                     }
+                     }
+                     },
+                     data:data1
+                     },
+                     {
+                     name:'Z轴',
+                     type:'line',
+                     stack: '总量',
+                     itemStyle : {
+                        normal : {
+                            lineStyle:{
+                            color:'#00FF00'
+                            }
+                        }
+                     },
+                     data:data2
+                     }
+                     ]
+        };
+        
+        
+        
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+        
+        
+<!--        setInterval(function () {-->
+<!--                    -->
+<!--                    for (var i = 0; i < 5; i++) {-->
+<!--                    data.shift();-->
+<!--                    data.push(randomData());-->
+<!--                    }-->
+<!--                    -->
+<!--                    myChart.setOption({-->
+<!--                                      series: [{-->
+<!--                                               data: data-->
+<!--                                               }]-->
+<!--                                      });-->
+<!--                    }, 500);-->
+
+
+        var index = 7;
+        var maxValue = -1000;
+        var minValue = 0;
+        function refreshData(item0,item1,item2){
+            //alert(item0 + '-' + item1 + '-' + item2);
+            
+            datax.shift();
+            datax.push('' + index++);
+            
+            data0.shift();
+            data0.push(item0);
+            
+            data1.shift();
+            data1.push(item1);
+                     
+            data2.shift();
+            data2.push(item2);
+            
+            
+            
+            var max;
+            var min;
+            if(item0 >= item1){
+                max = item0;
+                min = item1;
+            }else{
+                max = item1;
+                min = item0;
+            }
+            if(max < item2){
+                max = item2;
+            }
+            
+            if(min>item2){
+                min = item2;
+            }
+            
+            
+            
+            if(maxValue<max){
+                maxValue = max;
+                max = max*4;
+            } else {
+                max = maxValue*4;
+            }
+            
+<!--            if(maxValue<max){-->
+<!--                maxValue = max;-->
+<!--                max = max*10;-->
+<!--            } else {-->
+<!--                max = maxValue*10;-->
+<!--                max = maxValue;-->
+<!--            }-->
+
+<!--            if(minValue>min){-->
+<!--                minValue = min;-->
+<!--                min = min/10;-->
+<!--            } else {-->
+<!--               min = minValue/10;-->
+<!--            }-->
+
+if(max<3){
+    max = 3;
+}
+
+                min = -max;
+                
+<!--                alert("max:" + max + ",min:" + min);-->
+
+            myChart.setOption({
+                              xAxis: {
+                              data: datax
+                              },
+                              yAxis: {
+                              axisLabel: {
+                              formatter: function (value, index) {
+                              return value.toFixed(1);
+                              }
+                              },
+                              type: 'value',
+                              min:min,
+                              max:max
+                              },
+                              series: [{
+                                       data: data0
+                                       },{
+                                       data: data1
+                                       },{
+                                       data: data2
+                                       }]
+                              });
+        }
+        
+        
+        
+        
+            </script>
+    </body>
+</html>
