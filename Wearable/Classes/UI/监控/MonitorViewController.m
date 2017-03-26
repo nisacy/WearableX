@@ -547,7 +547,24 @@
                     NSLog(@"%x",signer_cert[i]);
                 }
                 
-                [ECCSecurity x509Verify:[self convertHexStrToData:ROOT_CERT_HEXSTR] signer_cert:[NSData dataWithBytes:signer_cert length:475] device_cert:[NSData dataWithBytes:device_cert length:424]];
+                int byte_cnt = device_cert[2] & 0xff;
+                int byte_cnt1 = device_cert[3] & 0xff;
+                byte_cnt = byte_cnt* 256;
+                byte_cnt = byte_cnt + byte_cnt1;
+                byte_cnt = byte_cnt + 4;
+                int temp_device_cnt = byte_cnt;
+                
+                
+                byte_cnt = signer_cert[2] & 0xff;
+                byte_cnt1 = signer_cert[3] & 0xff;
+                byte_cnt = byte_cnt* 256;
+                byte_cnt = byte_cnt + byte_cnt1;
+                byte_cnt = byte_cnt + 4;
+                int temp_signer_cnt = byte_cnt;
+                
+                [ECCSecurity x509Verify:[self convertHexStrToData:ROOT_CERT_HEXSTR]
+                            signer_cert:[NSData dataWithBytes:signer_cert length:temp_signer_cnt]
+                            device_cert:[NSData dataWithBytes:device_cert length:temp_device_cnt]];
                 
                 //*********发送32位字节数据  获取64位数据进行验签***********
                 NSString *hexStr0 = @"0600ff000000000000000000000000000000";

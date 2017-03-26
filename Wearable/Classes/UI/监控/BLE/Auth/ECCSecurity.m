@@ -10,6 +10,7 @@
 #import "Security/SecBase.h"
 #import "Security/SecItem.h"
 #import "openssl/ssl.h"
+#import "openssl/x509v3.h"
 #import "GMEllipticCurveCrypto.h"
 #import "GMEllipticCurveCrypto+hash.h"
 
@@ -662,16 +663,22 @@ der_length der_length_size:(size_t*) der_length_size
 + (void)x509Verify:(NSData *)root_cert signer_cert:(NSData *)signer_cert device_cert:(NSData *)device_cert {
     const unsigned char *root_certBytes = (const unsigned char *)[root_cert bytes];
     X509 *root_cert_X509 = d2i_X509(NULL, &root_certBytes, [root_cert length]);
+    EVP_PKEY * rootKey = X509_get_pubkey(root_cert_X509);
     
     const unsigned char *signer_certBytes = (const unsigned char *)[signer_cert bytes];
     X509 *signer_cert_X509 = d2i_X509(NULL, &signer_certBytes, [signer_cert length]);
+    EVP_PKEY * signerKey = X509_get_pubkey(signer_cert_X509);
     
     const unsigned char *device_certBytes = (const unsigned char *)[device_cert bytes];
     X509 *device_cert_X509 = d2i_X509(NULL, &device_certBytes, [device_cert length]);
     
-    X509_verify(root_cert_X509, X509_get_pubkey(root_cert_X509));
-    X509_verify(signer_cert_X509, X509_get_pubkey(root_cert_X509));
-    X509_verify(device_cert_X509, X509_get_pubkey(signer_cert_X509));
+    OpenSSL_add_all_algorithms();
+    OpenSSL_add_all_ciphers();
+    OpenSSL_add_all_digests();
+    int root_cert_code = X509_verify(root_cert_X509, rootKey);
+    int signer_cert_code = X509_verify(signer_cert_X509, rootKey);
+    int device_cert_code = X509_verify(device_cert_X509, signerKey);
+    printf("root code: %d, signer code: %d, device code:%d\n", root_cert_code, signer_cert_code, device_cert_code);
 }
 
 + (NSData*) encodeSig:(NSData *)data {
